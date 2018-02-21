@@ -58,25 +58,26 @@ class Path extends Array {
 
 	scale(factor, origin) {
 		this.forEach(point => point.scale(factor, origin));
-		this.paint();
 		return this;
 	}
 
 	rotate(degrees, origin) {
 		this.forEach(point => point.rotate(degrees, origin));
-		this.paint();
+		return this;
+	}
+
+	transform(path) {
+		this.forEach((point, index) => point.transform(path[index]));
 		return this;
 	}
 
 	translate(x, y) {
 		this.forEach(point => point.translate(x, y));
-		this.paint();
 		return this;
 	}
 
 	interpolate(startPath, endPath, progress) {
 		this.forEach((point, index) => point.interpolate(startPath[index], endPath[index], progress));
-		this.paint();
 		return this;
 	}
 
@@ -140,7 +141,7 @@ class Point {
 	}
 
 	toString() {
-		return `${this.instruction}${this.x ? ' '+this.x : ''}${this.y ? ' '+this.y : ''}`;
+		return `${this.instruction}${this.x || this.x === 0 ? ' '+this.x : ''}${this.y || this.y === 0 ? ' '+this.y : ''}`;
 	}
 
 	scale(factor, origin) {
@@ -166,6 +167,12 @@ class Point {
 		// Translate point back
 		this.x = newX + origin.x;
 		this.y = newY + origin.y;
+	}
+
+	transform(point) {
+		this.instruction = point.instruction;
+		this.x = point.x;
+		this.y = point.y;
 	}
 
 	translate(x, y) {

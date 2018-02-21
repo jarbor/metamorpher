@@ -1,4 +1,14 @@
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["SvgPathTransform"] = factory();
+	else
+		root["SvgPathTransform"] = factory();
+})(typeof self !== 'undefined' ? self : this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -73,7 +83,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.Edge = exports.Point = exports.Path = void 0;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -149,7 +159,6 @@ function (_Array) {
       this.forEach(function (point) {
         return point.scale(factor, origin);
       });
-      this.paint();
       return this;
     }
   }, {
@@ -158,7 +167,14 @@ function (_Array) {
       this.forEach(function (point) {
         return point.rotate(degrees, origin);
       });
-      this.paint();
+      return this;
+    }
+  }, {
+    key: "transform",
+    value: function transform(path) {
+      this.forEach(function (point, index) {
+        return point.transform(path[index]);
+      });
       return this;
     }
   }, {
@@ -167,7 +183,6 @@ function (_Array) {
       this.forEach(function (point) {
         return point.translate(x, y);
       });
-      this.paint();
       return this;
     }
   }, {
@@ -176,7 +191,6 @@ function (_Array) {
       this.forEach(function (point, index) {
         return point.interpolate(startPath[index], endPath[index], progress);
       });
-      this.paint();
       return this;
     }
   }, {
@@ -235,6 +249,8 @@ function (_Array) {
   return Path;
 }(_wrapNativeSuper(Array));
 
+exports.Path = Path;
+
 var Point =
 /*#__PURE__*/
 function () {
@@ -269,7 +285,7 @@ function () {
   }, {
     key: "toString",
     value: function toString() {
-      return "".concat(this.instruction).concat(this.x ? ' ' + this.x : '').concat(this.y ? ' ' + this.y : '');
+      return "".concat(this.instruction).concat(this.x || this.x === 0 ? ' ' + this.x : '').concat(this.y || this.y === 0 ? ' ' + this.y : '');
     }
   }, {
     key: "scale",
@@ -296,6 +312,13 @@ function () {
       this.y = newY + origin.y;
     }
   }, {
+    key: "transform",
+    value: function transform(point) {
+      this.instruction = point.instruction;
+      this.x = point.x;
+      this.y = point.y;
+    }
+  }, {
     key: "translate",
     value: function translate(x, y) {
       this.x += x;
@@ -311,6 +334,8 @@ function () {
 
   return Point;
 }();
+
+exports.Point = Point;
 
 var Edge =
 /*#__PURE__*/
@@ -345,12 +370,8 @@ function () {
   return Edge;
 }();
 
-var _default = {
-  Path: Path,
-  Point: Point,
-  Edge: Edge
-};
-exports.default = _default;
+exports.Edge = Edge;
 
 /***/ })
 /******/ ]);
+});

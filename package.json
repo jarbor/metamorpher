@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Utilities for working with and transforming SVG Paths in the DOM",
   "main": "svg-path-transform.js",
-  "repository": {
-    "url": "https://github.com/jsneden/svg-path-transform",
-    "type": "git"
-  },
+  "repository": "https://github.com/jsneden/svg-path-transform",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,9 +11,9 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.38",
-    "@babel/preset-env": "^7.0.0-beta.38",
-    "babel-loader": "^8.0.0-beta.0",
-    "webpack": "^3.10.0"
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "babel-loader": "8.0.0-beta.0",
+    "webpack": "^3.11.0"
   }
 }
