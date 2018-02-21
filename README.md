@@ -80,6 +80,13 @@ If the first option, Path SVGElement, is used then the path will already be atta
 Returns the longest [`Edge`](#edge-usage) of the path
 
 ## Point Usage
+### new Point(...)
+Points can be constructed from:
+1. Another Point or,
+2. An optional String `instruction`, required Number `x` and required Number `y`
+
+`x` and `y` are simply coordinates in the SVG viewbox while `instruction` should be a single letter (ex: M, L, Z, etc.). See the [Path Data Spec](https://www.w3.org/TR/SVG/paths.html#PathData) for more information on Path instructions.
+
 ### point.scale(factor, origin)
 Scale the point by `factor` relative to the `origin` [`Point`](#point-usage).
 
@@ -96,3 +103,21 @@ Copy the x and y coordinate from the `point` parameter.
 Calculate and set the point to be the interpolated `progress` between `startPoint` and `endPoint`. Progress should be a decimal between 0 and 1 representing the percentage of interpolation.
 
 ## Edge Usage
+### edge.length
+Calculate the length of the edge.
+
+### edge.angle
+Calculate the angle of the edge. Resulting angle is expressed as a fraction (rise over run). The following table lists a sampling of degrees from the positive x-axis and the corresponding result from this function:
+
+| Degrees | Result |
+|---|---|
+| 0 | 0 |
+| 30 | 0.5 |
+| 45 | 1 |
+| 60 | 2 |
+| 90 | NaN |
+| 135 | -1 |
+| 180 | 0 |
+| 225 | 1 |
+| 270 | NaN |
+| 315 | -1 |
