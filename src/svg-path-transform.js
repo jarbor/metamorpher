@@ -5,7 +5,7 @@ class Path extends Array {
 
 		if (input instanceof Path) {
 			path.element = input.element;
-			input.forEach(point => path.push(new Point(point)));
+			input.forEach(instruction => path.push(new Instruction(instruction)));
 		}
 		else {
 			let dataString;
@@ -18,22 +18,22 @@ class Path extends Array {
 				path.element = input;
 			}
 
-			dataString.split(' ').forEach(path.processToken, path);
+			dataString.split(' ').forEach(path.pushData, path);
 		}
 
 		return path;
 	}
 
-	processToken(token) {
+	pushData(data) {
 
-		if (token === '') {
+		if (data === '') {
 			// Do nothing
 		}
-		else if (isNaN(token)) {
-			this.push(new Point(token));
+		else if (isNaN(data)) {
+			this.push(new Instruction(data));
 		}
 		else {
-			this[this.length - 1].pushData(Number(token));
+			this[this.length - 1].pushData(Number(data));
 		}
 	}
 
@@ -53,31 +53,33 @@ class Path extends Array {
 	}
 
 	toString() {
-		return this.reduce((dataStringString, instruction) => `${dataStringString} ${instruction}`, '');
+		return this.reduce((accumulator, instruction) => `${accumulator} ${instruction}`, '');
 	}
 
 	scale(factor, origin) {
-		this.forEach(point => point.scale(factor, origin));
+		this.forEach(instruction => instruction.scale(factor, origin));
 		return this;
 	}
 
 	rotate(degrees, origin) {
-		this.forEach(point => point.rotate(degrees, origin));
+		this.forEach(instruction => instruction.rotate(degrees, origin));
 		return this;
 	}
 
 	transform(path) {
-		this.forEach((point, index) => point.transform(path[index]));
+		// TODO: Throw error if path lengths don't match
+		this.forEach((instruction, index) => instruction.transform(path[index]));
 		return this;
 	}
 
 	translate(x, y) {
-		this.forEach(point => point.translate(x, y));
+		this.forEach(instruction => instruction.translate(x, y));
 		return this;
 	}
 
 	interpolate(startPath, endPath, progress) {
-		this.forEach((point, index) => point.interpolate(startPath[index], endPath[index], progress));
+		// TODO: Throw error if path lengths don't match
+		this.forEach((instruction, index) => instruction.interpolate(startPath[index], endPath[index], progress));
 		return this;
 	}
 
@@ -110,10 +112,78 @@ class Path extends Array {
 	}
 }
 
+class Instruction {
+	constructor() {
+		if (arguments[0] instanceof Instruction) {
+			this.type = arguments[0].type;
+			this.points = arguments[0].points.map(point => new Point(point));
+		}
+		else {
+			this.points = [];
+			var args = Array.prototype.slice.call(arguments);
+			args.forEach(this.pushData.bind(this));
+		}
+	}
+
+	pushData(data) {
+		if (typeof data === 'string') {
+			this.type = data;
+		}
+		else {
+			this.nextIncompletePoint.pushData(data);
+		}
+	}
+
+	get nextIncompletePoint() {
+		let point;
+
+		if (!this.points.length || this.points[this.points.length - 1].y !== undefined) {
+			point = new Point();
+			this.points.push(point);
+		}
+		else {
+			point = this.points[this.points.length - 1];
+		}
+
+		return point;
+	}
+
+	toString() {
+		return this.points.reduce((accumulator, point) => `${accumulator} ${point}`, this.type);
+	}
+
+	scale(factor, origin) {
+		this.points.forEach(point => point.scale(factor, origin));
+		return this;
+	}
+
+	rotate(degrees, origin) {
+		this.points.forEach(point => point.rotate(degrees, origin));
+		return this;
+	}
+
+	transform(instruction) {
+		// TODO: Throw error if path lengths don't match
+		this.points.forEach((point, index) => point.transform(instruction.points[index]));
+		return this;
+	}
+
+	translate(x, y) {
+		this.points.forEach(point => point.translate(x, y));
+		return this;
+	}
+
+	interpolate(startInstruction, endInstruction, progress) {
+		// TODO: Throw error if path lengths don't match
+		this.points.forEach((point, index) => point.interpolate(startInstruction.points[index], endInstruction.points[index], progress));
+		return this;
+	}
+
+}
+
 class Point {
 	constructor() {
 		if (arguments[0] instanceof Point) {
-			this.instruction = arguments[0].instruction;
 			this.x = arguments[0].x;
 			this.y = arguments[0].y;
 		}
@@ -124,24 +194,19 @@ class Point {
 	}
 
 	pushData(data) {
-		if (typeof data === 'string') {
-			this.instruction = data;
+		if (this.x === undefined) {
+			this.x = data;
+		}
+		else if (this.y === undefined) {
+			this.y = data;
 		}
 		else {
-			if (this.x === undefined) {
-				this.x = data;
-			}
-			else if (this.y === undefined) {
-				this.y = data;
-			}
-			else {
-				throw new Error(`Can't push ${data} - coordinates already defined: ${this}`);
-			}
+			throw new Error(`Can't push ${data} - coordinates already defined: ${this}`);
 		}
 	}
 
 	toString() {
-		return `${this.instruction}${this.x || this.x === 0 ? ' '+this.x : ''}${this.y || this.y === 0 ? ' '+this.y : ''}`;
+		return `${this.x} ${this.y}`;
 	}
 
 	scale(factor, origin) {
@@ -209,6 +274,7 @@ class Edge {
 
 export {
 	Path,
+	Instruction,
 	Point,
 	Edge
 };

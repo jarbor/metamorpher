@@ -83,7 +83,7 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Edge = exports.Point = exports.Path = void 0;
+exports.Edge = exports.Point = exports.Instruction = exports.Path = void 0;
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -119,13 +119,13 @@ function (_Array) {
   }
 
   _createClass(Path, [{
-    key: "processToken",
-    value: function processToken(token) {
-      if (token === '') {// Do nothing
-      } else if (isNaN(token)) {
-        this.push(new Point(token));
+    key: "pushData",
+    value: function pushData(data) {
+      if (data === '') {// Do nothing
+      } else if (isNaN(data)) {
+        this.push(new Instruction(data));
       } else {
-        this[this.length - 1].pushData(Number(token));
+        this[this.length - 1].pushData(Number(data));
       }
     }
   }, {
@@ -149,47 +149,49 @@ function (_Array) {
   }, {
     key: "toString",
     value: function toString() {
-      return this.reduce(function (dataStringString, instruction) {
-        return "".concat(dataStringString, " ").concat(instruction);
+      return this.reduce(function (accumulator, instruction) {
+        return "".concat(accumulator, " ").concat(instruction);
       }, '');
     }
   }, {
     key: "scale",
     value: function scale(factor, origin) {
-      this.forEach(function (point) {
-        return point.scale(factor, origin);
+      this.forEach(function (instruction) {
+        return instruction.scale(factor, origin);
       });
       return this;
     }
   }, {
     key: "rotate",
     value: function rotate(degrees, origin) {
-      this.forEach(function (point) {
-        return point.rotate(degrees, origin);
+      this.forEach(function (instruction) {
+        return instruction.rotate(degrees, origin);
       });
       return this;
     }
   }, {
     key: "transform",
     value: function transform(path) {
-      this.forEach(function (point, index) {
-        return point.transform(path[index]);
+      // TODO: Throw error if path lengths don't match
+      this.forEach(function (instruction, index) {
+        return instruction.transform(path[index]);
       });
       return this;
     }
   }, {
     key: "translate",
     value: function translate(x, y) {
-      this.forEach(function (point) {
-        return point.translate(x, y);
+      this.forEach(function (instruction) {
+        return instruction.translate(x, y);
       });
       return this;
     }
   }, {
     key: "interpolate",
     value: function interpolate(startPath, endPath, progress) {
-      this.forEach(function (point, index) {
-        return point.interpolate(startPath[index], endPath[index], progress);
+      // TODO: Throw error if path lengths don't match
+      this.forEach(function (instruction, index) {
+        return instruction.interpolate(startPath[index], endPath[index], progress);
       });
       return this;
     }
@@ -226,8 +228,8 @@ function (_Array) {
 
       if (input instanceof Path) {
         path.element = input.element;
-        input.forEach(function (point) {
-          return path.push(new Point(point));
+        input.forEach(function (instruction) {
+          return path.push(new Instruction(instruction));
         });
       } else {
         var dataString;
@@ -239,7 +241,7 @@ function (_Array) {
           path.element = input;
         }
 
-        dataString.split(' ').forEach(path.processToken, path);
+        dataString.split(' ').forEach(path.pushData, path);
       }
 
       return path;
@@ -251,6 +253,103 @@ function (_Array) {
 
 exports.Path = Path;
 
+var Instruction =
+/*#__PURE__*/
+function () {
+  function Instruction() {
+    _classCallCheck(this, Instruction);
+
+    if (arguments[0] instanceof Instruction) {
+      this.type = arguments[0].type;
+      this.points = arguments[0].points.map(function (point) {
+        return new Point(point);
+      });
+    } else {
+      this.points = [];
+      var args = Array.prototype.slice.call(arguments);
+      args.forEach(this.pushData.bind(this));
+    }
+  }
+
+  _createClass(Instruction, [{
+    key: "pushData",
+    value: function pushData(data) {
+      if (typeof data === 'string') {
+        this.type = data;
+      } else {
+        this.nextIncompletePoint.pushData(data);
+      }
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return this.points.reduce(function (accumulator, point) {
+        return "".concat(accumulator, " ").concat(point);
+      }, this.type);
+    }
+  }, {
+    key: "scale",
+    value: function scale(factor, origin) {
+      this.points.forEach(function (point) {
+        return point.scale(factor, origin);
+      });
+      return this;
+    }
+  }, {
+    key: "rotate",
+    value: function rotate(degrees, origin) {
+      this.points.forEach(function (point) {
+        return point.rotate(degrees, origin);
+      });
+      return this;
+    }
+  }, {
+    key: "transform",
+    value: function transform(instruction) {
+      // TODO: Throw error if path lengths don't match
+      this.points.forEach(function (point, index) {
+        return point.transform(instruction.points[index]);
+      });
+      return this;
+    }
+  }, {
+    key: "translate",
+    value: function translate(x, y) {
+      this.points.forEach(function (point) {
+        return point.translate(x, y);
+      });
+      return this;
+    }
+  }, {
+    key: "interpolate",
+    value: function interpolate(startInstruction, endInstruction, progress) {
+      // TODO: Throw error if path lengths don't match
+      this.points.forEach(function (point, index) {
+        return point.interpolate(startInstruction.points[index], endInstruction.points[index], progress);
+      });
+      return this;
+    }
+  }, {
+    key: "nextIncompletePoint",
+    get: function get() {
+      var point;
+
+      if (!this.points.length || this.points[this.points.length - 1].y !== undefined) {
+        point = new Point();
+        this.points.push(point);
+      } else {
+        point = this.points[this.points.length - 1];
+      }
+
+      return point;
+    }
+  }]);
+
+  return Instruction;
+}();
+
+exports.Instruction = Instruction;
+
 var Point =
 /*#__PURE__*/
 function () {
@@ -258,7 +357,6 @@ function () {
     _classCallCheck(this, Point);
 
     if (arguments[0] instanceof Point) {
-      this.instruction = arguments[0].instruction;
       this.x = arguments[0].x;
       this.y = arguments[0].y;
     } else {
@@ -270,22 +368,18 @@ function () {
   _createClass(Point, [{
     key: "pushData",
     value: function pushData(data) {
-      if (typeof data === 'string') {
-        this.instruction = data;
+      if (this.x === undefined) {
+        this.x = data;
+      } else if (this.y === undefined) {
+        this.y = data;
       } else {
-        if (this.x === undefined) {
-          this.x = data;
-        } else if (this.y === undefined) {
-          this.y = data;
-        } else {
-          throw new Error("Can't push ".concat(data, " - coordinates already defined: ").concat(this));
-        }
+        throw new Error("Can't push ".concat(data, " - coordinates already defined: ").concat(this));
       }
     }
   }, {
     key: "toString",
     value: function toString() {
-      return "".concat(this.instruction).concat(this.x || this.x === 0 ? ' ' + this.x : '').concat(this.y || this.y === 0 ? ' ' + this.y : '');
+      return "".concat(this.x, " ").concat(this.y);
     }
   }, {
     key: "scale",
