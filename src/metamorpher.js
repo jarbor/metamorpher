@@ -84,31 +84,28 @@ class Path extends Array {
 	}
 
 	get longestEdge() {
-		if (!this._longestEdge) {
-			let lastPoint,
-				edges = [],
-				longestEdge,
-				longestEdgeLength = 0
-			;
+		let lastPoint,
+			edges = [],
+			longestEdge,
+			longestEdgeLength = 0
+		;
 
-			this.forEach(point => {
-				if (point.instruction === 'L') {
-					edges.push(new Edge(lastPoint, point))
-				}
-				lastPoint = point;
-			});
+		this.forEach(instruction => {
+			let nextPoint = instruction.lastPoint;
+			if (instruction.type === 'L') {
+				edges.push(new Edge(lastPoint, nextPoint))
+			}
+			lastPoint = nextPoint;
+		});
 
-			edges.forEach(edge => {
-				if (edge.length > longestEdgeLength) {
-					longestEdge = edge;
-					longestEdgeLength = edge.length;
-				}
-			})
+		edges.forEach(edge => {
+			if (edge.length > longestEdgeLength) {
+				longestEdge = edge;
+				longestEdgeLength = edge.length;
+			}
+		})
 
-			this._longestEdge = longestEdge;
-		}
-
-		return this._longestEdge;
+		return longestEdge;
 	}
 }
 
@@ -146,6 +143,10 @@ class Instruction {
 		}
 
 		return point;
+	}
+
+	get lastPoint() {
+		return this.points.length ? this.points[this.points.length - 1] : undefined;
 	}
 
 	toString() {

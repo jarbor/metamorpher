@@ -198,28 +198,26 @@ function (_Array) {
   }, {
     key: "longestEdge",
     get: function get() {
-      if (!this._longestEdge) {
-        var lastPoint,
-            edges = [],
-            longestEdge,
-            longestEdgeLength = 0;
-        this.forEach(function (point) {
-          if (point.instruction === 'L') {
-            edges.push(new Edge(lastPoint, point));
-          }
+      var lastPoint,
+          edges = [],
+          longestEdge,
+          longestEdgeLength = 0;
+      this.forEach(function (instruction) {
+        var nextPoint = instruction.lastPoint;
 
-          lastPoint = point;
-        });
-        edges.forEach(function (edge) {
-          if (edge.length > longestEdgeLength) {
-            longestEdge = edge;
-            longestEdgeLength = edge.length;
-          }
-        });
-        this._longestEdge = longestEdge;
-      }
+        if (instruction.type === 'L') {
+          edges.push(new Edge(lastPoint, nextPoint));
+        }
 
-      return this._longestEdge;
+        lastPoint = nextPoint;
+      });
+      edges.forEach(function (edge) {
+        if (edge.length > longestEdgeLength) {
+          longestEdge = edge;
+          longestEdgeLength = edge.length;
+        }
+      });
+      return longestEdge;
     }
   }], [{
     key: "make",
@@ -342,6 +340,11 @@ function () {
       }
 
       return point;
+    }
+  }, {
+    key: "lastPoint",
+    get: function get() {
+      return this.points.length ? this.points[this.points.length - 1] : undefined;
     }
   }]);
 
