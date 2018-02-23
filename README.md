@@ -1,5 +1,5 @@
-# metamorpher
-Utilities for working with and transforming SVG Paths in the DOM.
+# Metamorpher
+Mutate SVG Paths in the DOM.
 
 ## TL;DR
 Modify an SVG Path in three steps:
