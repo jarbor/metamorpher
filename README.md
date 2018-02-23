@@ -1,4 +1,4 @@
-# svg-path-transform
+# metamorpher
 Utilities for working with and transforming SVG Paths in the DOM.
 
 ## TL;DR
@@ -11,27 +11,27 @@ Achieve complex path animation with a simple loop and the [`transform`](#pathtra
 
 ## Installation
 ```
-yarn add svg-path-transform
+yarn add metamorpher
 ```
 
 ## Include
-SVG Path Transform supports AMD, CommonJS, ES6 import methods in addition to global script include. Since, SVG Path Transform has multiple exported classes and no default export, you have the option to selectively import classes from SVG Path Transform based on your needs. Most consumers of this package will only require the `Path` class and possibly the `Point` class. 
+Metamorpher supports AMD, CommonJS, ES6 import methods in addition to global script include. Since, Metamorpher has multiple exported classes and no default export, you have the option to selectively import classes from Metamorpher based on your needs. Most consumers of this package will only require the `Path` class and possibly the `Point` class. 
 
 ### ES6
 ```js
-import {Path, Point, Edge} from 'svg-path-transform';
+import {Path, Point, Edge} from 'metamorpher';
 ```
 
 ### CommonJS
 ```js
-var Path = require('svg-path-transform').Path;
-var Point = require('svg-path-transform').Point;
-var Edge = require('svg-path-transform').Edge;
+var Path = require('metamorpher').Path;
+var Point = require('metamorpher').Point;
+var Edge = require('metamorpher').Edge;
 ```
 
 ### Global Script Include
 ```html
-<script src="svg-path-transform.js" />
+<script src="metamorpher.js" />
 <script>
   var Path = svgPathTransform.Path;
   var Point = svgPathTransform.Point;

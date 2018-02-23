@@ -1,9 +1,9 @@
 {
-  "name": "svg-path-transform",
+  "name": "metamorpher",
   "version": "1.0.0",
-  "description": "Utilities for working with and transforming SVG Paths in the DOM",
-  "main": "svg-path-transform.js",
-  "repository": "https://github.com/jsneden/svg-path-transform",
+  "description": "Mutate SVG Paths in the DOM",
+  "main": "metamorpher.js",
+  "repository": "https://github.com/jsneden/metamorpher",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

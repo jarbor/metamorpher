@@ -3,13 +3,13 @@ const webpack = require('webpack');
 
 module.exports = {
 	entry: {
-		'svg-path-transform': './src/svg-path-transform.js',
-		'svg-path-transform.min': './src/svg-path-transform.js'
+		'metamorpher': './src/metamorpher.js',
+		'metamorpher.min': './src/metamorpher.js'
 	},
 	output: {
 		filename: '[name].js',
 		path: path.resolve(__dirname),
-		library: 'SvgPathTransform',
+		library: 'metamorpher',
 		libraryTarget: 'umd'
 	},
 	module: {

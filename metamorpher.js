@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["SvgPathTransform"] = factory();
+		exports["metamorpher"] = factory();
 	else
-		root["SvgPathTransform"] = factory();
+		root["metamorpher"] = factory();
 })(typeof self !== 'undefined' ? self : this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
