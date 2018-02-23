@@ -1,6 +1,6 @@
 {
   "name": "metamorpher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Mutate SVG Paths in the DOM",
   "main": "metamorpher.js",
   "repository": "https://github.com/jsneden/metamorpher",
