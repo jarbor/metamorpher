@@ -1,11 +1,11 @@
 
-class Path extends Array {
-	static make(input) {
-		let path = new Path();
+class Path {
+	constructor(input) {
+		this.instructions = [];
 
 		if (input instanceof Path) {
-			path.element = input.element;
-			input.forEach(instruction => path.push(new Instruction(instruction)));
+			this.element = input.element;
+			input.instructions.forEach(instruction => this.instructions.push(new Instruction(instruction)));
 		}
 		else {
 			let dataString;
@@ -15,13 +15,11 @@ class Path extends Array {
 			}
 			else {
 				dataString = input.getAttribute('d');
-				path.element = input;
+				this.element = input;
 			}
 
-			dataString.split(' ').forEach(path.pushData, path);
+			dataString.split(' ').forEach(this.pushData, this);
 		}
-
-		return path;
 	}
 
 	pushData(data) {
@@ -30,10 +28,10 @@ class Path extends Array {
 			// Do nothing
 		}
 		else if (isNaN(data)) {
-			this.push(new Instruction(data));
+			this.instructions.push(new Instruction(data));
 		}
 		else {
-			this[this.length - 1].pushData(Number(data));
+			this.instructions[this.instructions.length - 1].pushData(Number(data));
 		}
 	}
 
@@ -53,33 +51,33 @@ class Path extends Array {
 	}
 
 	toString() {
-		return this.reduce((accumulator, instruction) => `${accumulator} ${instruction}`, '');
+		return this.instructions.reduce((accumulator, instruction) => `${accumulator} ${instruction}`, '');
 	}
 
 	scale(factor, origin) {
-		this.forEach(instruction => instruction.scale(factor, origin));
+		this.instructions.forEach(instruction => instruction.scale(factor, origin));
 		return this;
 	}
 
 	rotate(degrees, origin) {
-		this.forEach(instruction => instruction.rotate(degrees, origin));
+		this.instructions.forEach(instruction => instruction.rotate(degrees, origin));
 		return this;
 	}
 
 	transform(path) {
 		// TODO: Throw error if path lengths don't match
-		this.forEach((instruction, index) => instruction.transform(path[index]));
+		this.instructions.forEach((instruction, index) => instruction.transform(path.instructions[index]));
 		return this;
 	}
 
 	translate(x, y) {
-		this.forEach(instruction => instruction.translate(x, y));
+		this.instructions.forEach(instruction => instruction.translate(x, y));
 		return this;
 	}
 
 	interpolate(startPath, endPath, progress) {
 		// TODO: Throw error if path lengths don't match
-		this.forEach((instruction, index) => instruction.interpolate(startPath[index], endPath[index], progress));
+		this.instructions.forEach((instruction, index) => instruction.interpolate(startPath.instructions[index], endPath.instructions[index], progress));
 		return this;
 	}
 
@@ -90,7 +88,7 @@ class Path extends Array {
 			longestEdgeLength = 0
 		;
 
-		this.forEach(instruction => {
+		this.instructions.forEach(instruction => {
 			let nextPoint = instruction.lastPoint;
 			if (instruction.type === 'L') {
 				edges.push(new Edge(lastPoint, nextPoint))

@@ -85,37 +85,39 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Edge = exports.Point = exports.Instruction = exports.Path = void 0;
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _gPO = Object.getPrototypeOf || function _gPO(o) { return o.__proto__; };
-
-var _sPO = Object.setPrototypeOf || function _sPO(o, p) { o.__proto__ = p; return o; };
-
-var _construct = _typeof(Reflect) === "object" && Reflect.construct || function _construct(Parent, args, Class) { var Constructor, a = [null]; a.push.apply(a, args); Constructor = Parent.bind.apply(Parent, a); return _sPO(new Constructor(), Class.prototype); };
-
-var _cache = typeof Map === "function" && new Map();
-
-function _wrapNativeSuper(Class) { if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() {} Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writeable: true, configurable: true } }); return _sPO(Wrapper, _sPO(function Super() { return _construct(Class, arguments, _gPO(this).constructor); }, Class)); }
-
 var Path =
 /*#__PURE__*/
-function (_Array) {
-  _inherits(Path, _Array);
+function () {
+  function Path(input) {
+    var _this = this;
 
-  function Path() {
     _classCallCheck(this, Path);
 
-    return _possibleConstructorReturn(this, (Path.__proto__ || Object.getPrototypeOf(Path)).apply(this, arguments));
+    this.instructions = [];
+
+    if (input instanceof Path) {
+      this.element = input.element;
+      input.instructions.forEach(function (instruction) {
+        return _this.instructions.push(new Instruction(instruction));
+      });
+    } else {
+      var dataString;
+
+      if (typeof input === 'string') {
+        dataString = input;
+      } else {
+        dataString = input.getAttribute('d');
+        this.element = input;
+      }
+
+      dataString.split(' ').forEach(this.pushData, this);
+    }
   }
 
   _createClass(Path, [{
@@ -123,9 +125,9 @@ function (_Array) {
     value: function pushData(data) {
       if (data === '') {// Do nothing
       } else if (isNaN(data)) {
-        this.push(new Instruction(data));
+        this.instructions.push(new Instruction(data));
       } else {
-        this[this.length - 1].pushData(Number(data));
+        this.instructions[this.instructions.length - 1].pushData(Number(data));
       }
     }
   }, {
@@ -149,14 +151,14 @@ function (_Array) {
   }, {
     key: "toString",
     value: function toString() {
-      return this.reduce(function (accumulator, instruction) {
+      return this.instructions.reduce(function (accumulator, instruction) {
         return "".concat(accumulator, " ").concat(instruction);
       }, '');
     }
   }, {
     key: "scale",
     value: function scale(factor, origin) {
-      this.forEach(function (instruction) {
+      this.instructions.forEach(function (instruction) {
         return instruction.scale(factor, origin);
       });
       return this;
@@ -164,7 +166,7 @@ function (_Array) {
   }, {
     key: "rotate",
     value: function rotate(degrees, origin) {
-      this.forEach(function (instruction) {
+      this.instructions.forEach(function (instruction) {
         return instruction.rotate(degrees, origin);
       });
       return this;
@@ -173,15 +175,15 @@ function (_Array) {
     key: "transform",
     value: function transform(path) {
       // TODO: Throw error if path lengths don't match
-      this.forEach(function (instruction, index) {
-        return instruction.transform(path[index]);
+      this.instructions.forEach(function (instruction, index) {
+        return instruction.transform(path.instructions[index]);
       });
       return this;
     }
   }, {
     key: "translate",
     value: function translate(x, y) {
-      this.forEach(function (instruction) {
+      this.instructions.forEach(function (instruction) {
         return instruction.translate(x, y);
       });
       return this;
@@ -190,8 +192,8 @@ function (_Array) {
     key: "interpolate",
     value: function interpolate(startPath, endPath, progress) {
       // TODO: Throw error if path lengths don't match
-      this.forEach(function (instruction, index) {
-        return instruction.interpolate(startPath[index], endPath[index], progress);
+      this.instructions.forEach(function (instruction, index) {
+        return instruction.interpolate(startPath.instructions[index], endPath.instructions[index], progress);
       });
       return this;
     }
@@ -202,7 +204,7 @@ function (_Array) {
           edges = [],
           longestEdge,
           longestEdgeLength = 0;
-      this.forEach(function (instruction) {
+      this.instructions.forEach(function (instruction) {
         var nextPoint = instruction.lastPoint;
 
         if (instruction.type === 'L') {
@@ -219,35 +221,10 @@ function (_Array) {
       });
       return longestEdge;
     }
-  }], [{
-    key: "make",
-    value: function make(input) {
-      var path = new Path();
-
-      if (input instanceof Path) {
-        path.element = input.element;
-        input.forEach(function (instruction) {
-          return path.push(new Instruction(instruction));
-        });
-      } else {
-        var dataString;
-
-        if (typeof input === 'string') {
-          dataString = input;
-        } else {
-          dataString = input.getAttribute('d');
-          path.element = input;
-        }
-
-        dataString.split(' ').forEach(path.pushData, path);
-      }
-
-      return path;
-    }
   }]);
 
   return Path;
-}(_wrapNativeSuper(Array));
+}();
 
 exports.Path = Path;
 
