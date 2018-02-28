@@ -9,6 +9,8 @@ Modify an SVG Path in three steps:
 
 Achieve complex path animation with a simple loop and the [`transform`](#pathtransformpath) and [`interpolate`](#pathinterpolatestartpath-endpath-progress) methods. Suggested to use a minimal easing / animation package to add easings to your loops. Recommend to use [VelocityJS](https://github.com/julianshapiro/velocity) since you may want to combine this with CSS animations.
 
+For a full tutorial, see: [Animating SVGs with Metamorpher and VelocityJS](http://agencyautonomous.com/articles/animating-svg-path-data-metamorpher-velocityjs).
+
 ## Installation
 ```
 yarn add metamorpher
